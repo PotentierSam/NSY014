@@ -29,13 +29,26 @@ public class SquashTMRestApi {
     public String getProjectIdByName(String projectName) {
         auth();
         final Response response = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/projects");
-        final JsonPath path = response.jsonPath();
-        final ArrayList<?> ids = path.getJsonObject("_embedded.projects. id");
-        final ArrayList<?> names = path.getJsonObject("_embedded.projects.name");
+        final ArrayList<?> ids = response.jsonPath().getJsonObject("_embedded.projects.id");
+        final ArrayList<?> names = response.jsonPath().getJsonObject("_embedded.projects.name");
 
         for (int numProject = 0; numProject < names.size(); numProject++) {
             if (names.get(numProject).toString().equals(projectName)) {
                 return ids.get(numProject).toString();
+            }
+        }
+        return null;
+    }
+
+    public String getProjectIdById(String projectId) {
+        auth();
+        final Response response = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/projects");
+        final ArrayList<?> ids = response.jsonPath().getJsonObject("_embedded.projects.id");
+        final ArrayList<?> names = response.jsonPath().getJsonObject("_embedded.projects.name");
+
+        for (int numProject = 0; numProject < ids.size(); numProject++) {
+            if (ids.get(numProject).toString().equals(projectId)) {
+                return names.get(numProject).toString();
             }
         }
         return null;

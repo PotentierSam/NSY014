@@ -11,6 +11,7 @@ public class Main {
         else {
             final SquashTMRestApi authSystem = new SquashTMRestApi(args[0], args[1], args[2], args[3]);
             System.out.println(authSystem.getProjectIdByName("Test Project-1"));
+            System.out.println(authSystem.getProjectIdById("14"));
         }
     }
 }
