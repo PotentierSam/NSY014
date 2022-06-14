@@ -1,10 +1,11 @@
 package fr.sam.NSY014;
 
+import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SquashTMRestApi {
     private final String host;
@@ -12,7 +13,7 @@ public class SquashTMRestApi {
     private final String user;
     private final String password;
 
-    public SquashTMRestApi(String host, String port, String user, String password) {
+    public SquashTMRestApi(@NotNull String host ,@NotNull  String port, @NotNull String user, @NotNull String password) {
         this.host = host;
         this.port = port;
         this.user = user;
@@ -26,31 +27,47 @@ public class SquashTMRestApi {
         RestAssured.useRelaxedHTTPSValidation();
     }
 
-    public String getProjectIdByName(String projectName) {
+    public String getCampaignById(@NotNull int campaignId) {
         auth();
-        final Response response = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/projects");
-        final ArrayList<?> ids = response.jsonPath().getJsonObject("_embedded.projects.id");
-        final ArrayList<?> names = response.jsonPath().getJsonObject("_embedded.projects.name");
+        String response;
+        String test;
 
-        for (int numProject = 0; numProject < names.size(); numProject++) {
-            if (names.get(numProject).toString().equals(projectName)) {
-                return ids.get(numProject).toString();
-            }
+        try
+        {
+            response = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/campaigns/"+campaignId).jsonPath().getJsonObject("name");
+            System.out.println(response.toString());
+            test = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/iterations/85").jsonPath().getJsonObject("name");
+            System.out.println(test.toString());
         }
-        return null;
+        catch (Exception exception)
+        {
+            System.out.println(exception.getClass().getSimpleName());
+            switch (exception.getClass().getSimpleName())
+            {
+                case "UnknownHostException":
+                {
+                    System.out.println("Erreur : l'hôte renseigné ne réponds pas");
+                }
+
+                case "ConnectException":
+                {
+                    System.out.println("Erreur : le port renseigné est invalide");
+                }
+
+                case "JsonPathException":
+                {
+                    System.out.println("Erreur : le/les identifiant(s) renseigné(s) est/sont invalide(s)");
+                }
+            }
+
+            return "";
+        }
+
+        return "";
     }
 
-    public String getProjectIdById(String projectId) {
-        auth();
-        final Response response = RestAssured.get("http://" + host + ":" + port + "/squash/api/rest/latest/projects");
-        final ArrayList<?> ids = response.jsonPath().getJsonObject("_embedded.projects.id");
-        final ArrayList<?> names = response.jsonPath().getJsonObject("_embedded.projects.name");
-
-        for (int numProject = 0; numProject < ids.size(); numProject++) {
-            if (ids.get(numProject).toString().equals(projectId)) {
-                return names.get(numProject).toString();
-            }
-        }
+    public List<String> getTestCasesByProjectId()
+    {
         return null;
     }
 }
